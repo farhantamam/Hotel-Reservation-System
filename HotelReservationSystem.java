@@ -14,11 +14,33 @@ public class HotelReservationSystem {
 	{
 		JFrame frame = new JFrame("Hotel Reservation System");
 		
+		JPanel userPanel = new JPanel();
+		JButton signInBtnInitial = new JButton("Sign In");		
+		JButton signUpBtnInitial = new JButton("Sign Up");
+		userPanel.add(signInBtnInitial);
+		userPanel.add(signUpBtnInitial);
+		
 		JPanel signInPanel = new JPanel();
-		JButton signInButton = new JButton("Sign In");
-		JButton signUpButton = new JButton("Sign Up");
-		signInPanel.add(signInButton);
-		signInPanel.add(signUpButton);
+		JLabel id_signIn_Label = new JLabel("id:");
+		JTextField id_signInField = new JTextField(20);
+		JButton signInBtnActual = new JButton("Sign Up");
+		signInPanel.add(id_signIn_Label);
+		signInPanel.add(id_signInField);
+		signInPanel.add(signInBtnActual);
+		
+		JPanel signUpPanel = new JPanel();
+		JLabel id_signUp_Label = new JLabel("id:");
+		JLabel name_signUp_Label = new JLabel("Name:");
+		JTextField id_signUpField = new JTextField(20);
+		JTextField name_signUpField = new JTextField(30);
+		JButton signUpBtnActual = new JButton("Sign Up");
+		signUpPanel.add(id_signUp_Label);
+		signUpPanel.add(id_signUpField);
+		signUpPanel.add(name_signUp_Label);
+		signUpPanel.add(name_signUpField);
+		signUpPanel.add(signUpBtnActual);
+		//probably should use spring layout
+		signUpPanel.setLayout(new BoxLayout(signUpPanel, BoxLayout.PAGE_AXIS));
 		
 		JPanel managerPanel = new JPanel();
 		JButton loadButton = new JButton("Load");
@@ -38,7 +60,7 @@ public class HotelReservationSystem {
 			public void actionPerformed(ActionEvent e) 
 			{
 				frame.remove(mainPanel);
-				frame.add(signInPanel);
+				frame.add(userPanel);
 				frame.setSize(400, 200);
 			}
 		});
@@ -57,6 +79,27 @@ public class HotelReservationSystem {
 		mainPanel.add(userButton);
 		mainPanel.add(managerButton);
 		frame.add(mainPanel);
+		
+		//all the button listeners
+		signInBtnInitial.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) 
+			{
+				frame.remove(userPanel);
+				frame.add(signInPanel);
+				//frame.setSize(400, 200);
+				frame.pack();
+			}
+		});
+		signUpBtnInitial.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) 
+			{
+				frame.remove(userPanel);
+				frame.add(signUpPanel);
+				//frame.setSize(400, 200);
+				frame.pack();
+			}
+		});
+		
 		
 		//frame.pack();
 		frame.setSize(500, 250);
