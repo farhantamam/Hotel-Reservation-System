@@ -130,7 +130,7 @@ public class HotelReservationSystem {
 		viewButton.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				hotel.getManager().getViewFrame();
+				hotel.getManager().getViewFrame(hotel.getAllRooms());
 			}
 		});
 

@@ -1,5 +1,6 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -12,6 +13,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
@@ -35,6 +37,10 @@ public class Manager extends User {
 	private JPanel btnPanel;
 	private JButton[][] buttons;
 	GregorianCalendar calendar;
+	
+	private JPanel roomViewPane;
+	private JLabel availRooms;
+	private JLabel reservedRooms;
 
 	public Manager(int uid, String uname) {
 		super(uid, uname);
@@ -72,15 +78,17 @@ public class Manager extends User {
 
 	}
 
-	public void getViewFrame()
+	public void getViewFrame(List<Room> rooms)
 	{
 		viewFrame = new JFrame("Manager View");
 		panel = new JPanel();//new BorderLayout());
 		monthViewPane = new JPanel(new BorderLayout());
+		roomViewPane = new JPanel(new BorderLayout());
 
 		calendar = new GregorianCalendar(); 
 		getMonthView(calendar.get(Calendar.DAY_OF_MONTH));
-
+		getRoomView(rooms);
+		
 		viewFrame.add(panel);
 		viewFrame.pack();
 		viewFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -90,6 +98,63 @@ public class Manager extends User {
 	private void updateViewFrame()
 	{
 		panel.removeAll();
+		//use it once monthView part is done
+	}
+	
+	private void getRoomView(List<Room> rooms)
+	{
+		availRooms = new JLabel("Available Rooms:");
+		reservedRooms = new JLabel("Reserved Rooms:");
+		roomViewPane.add(availRooms, BorderLayout.NORTH);
+		roomViewPane.add(getAvailRooms(rooms));
+		roomViewPane.add(reservedRooms, BorderLayout.CENTER);
+		roomViewPane.add(getReservedRooms(rooms), BorderLayout.SOUTH);
+		panel.add(roomViewPane);
+	}
+
+	private JPanel getAvailRooms(List<Room> rooms) {
+		JPanel availPane = new JPanel();
+		List<Room> available = new ArrayList<>();
+		for(Room r: rooms)
+		{
+			User u = r.reserved(calendar.getTime());
+			if(u == null)
+				available.add(r);
+		}
+		for(Room ar: available)
+		{
+			JButton roomBtn = new JButton(Integer.toString(ar.getRoomId()));
+			System.out.println(roomBtn.getText());
+			roomBtn.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					//update room info 
+				}
+			});
+			availPane.add(roomBtn);
+		}
+		return availPane;
+	}
+	
+	private JPanel getReservedRooms(List<Room> rooms) {
+		JPanel reservedPane = new JPanel();
+		List<Room> reserved = new ArrayList<>();
+		for(Room r: rooms)
+		{
+			User u = r.reserved(calendar.getTime());
+			if(u != null)
+				reserved.add(r);
+		}
+		for(Room rr: reserved)
+		{
+			JButton roomBtn = new JButton(Integer.toString(rr.getRoomId()));
+			roomBtn.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					//update room info 
+				}
+			});
+			reservedPane.add(roomBtn);
+		}
+		return reservedPane;
 	}
 
 	private void getMonthView(int highlight)
@@ -105,11 +170,6 @@ public class Manager extends User {
 		highlight( Integer.toString(highlight) );
 		panel.add(monthViewPane);
 		viewFrame.revalidate();
-		/*viewFrame.add(panel);		
-		viewFrame.pack();
-		viewFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		viewFrame.setVisible(true);
-		 */
 	}
 
 	private JPanel getMonthYearPane()
@@ -269,6 +329,7 @@ public class Manager extends User {
 	private void quit()
 	{
 		save();
+		// this function should probably be in main
 	}
 
 	// fix this so it casts to proper  format
