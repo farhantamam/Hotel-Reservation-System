@@ -8,6 +8,7 @@ public class Hotel {
 	
 	private static Hotel instance = new Hotel();
 	private GuestUser currentGuest;
+	private Manager manager;
 	
     private List<Room> rooms;
     private List<User> users;
@@ -21,7 +22,7 @@ public class Hotel {
         luxorious = new ArrayList<>();
         economy = new ArrayList<>();
         makeRooms();
-        createManager(1234, "manager");//only one default manager
+        manager = createManager(1234, "manager");//only one default manager
     }
     
 	public static Hotel getInstance() {
@@ -40,6 +41,10 @@ public class Hotel {
 	 */
 	public void setCurrentGuest(GuestUser currentGuest) {
 		this.currentGuest = currentGuest;
+	}
+
+	public Manager getManager() {
+		return manager;
 	}
 
 	List<Room> getAllRooms() {
@@ -82,13 +87,13 @@ public class Hotel {
         return (GuestUser)user;
     }
 
-    private void createManager(int uid, String uname) {
+    private Manager createManager(int uid, String uname) {
         User user = findUser(uid, uname, false);
         if (user == null) {
         	user = new Manager(uid, uname);
         	users.add(user);
         }
-        //return (Manager)user;
+        return (Manager)user;
     }
     private User findUser(int uid, String uname, boolean isGuest) {
     	for (User user: users) {

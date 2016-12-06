@@ -127,13 +127,12 @@ public class HotelReservationSystem {
 		JButton loadButton = new JButton("Load");
 		JButton viewButton = new JButton("View");
 
-		/*Manager manager = new Manager("1");
 		viewButton.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				manager.getViewFrame();
+				hotel.getManager().getViewFrame();
 			}
-		});*/
+		});
 
 		JButton saveButton = new JButton("Save");
 		JButton quitButton = new JButton("Quit");
@@ -151,7 +150,8 @@ public class HotelReservationSystem {
 			{
 				frame.remove(mainPanel);
 				frame.add(userPanel);
-				frame.setSize(400, 200);
+				frame.setSize(200, 70);
+				frame.revalidate();
 			}
 		});
 
@@ -163,7 +163,7 @@ public class HotelReservationSystem {
 			{
 				frame.remove(mainPanel);
 				frame.add(managerPanel);
-				frame.setSize(400, 200);
+				frame.setSize(400, 70);
 			}
 		});
 		mainPanel.add(userButton);
@@ -177,8 +177,9 @@ public class HotelReservationSystem {
 				frame.remove(userPanel);
 				signInPanel.add(error);
 				frame.add(signInPanel);
-				//frame.setSize(400, 200);
-				frame.pack();
+				frame.setSize(400, 90);
+				frame.revalidate();
+				//frame.pack();
 			}
 		});
 		signUpBtnInitial.addActionListener(new ActionListener() {
@@ -198,7 +199,6 @@ public class HotelReservationSystem {
 				if(id_signInField.getText().equals(""))
 				{
 					error.setText("Error: please enter an id");
-					frame.pack();
 				}
 				else {
 					GuestUser u = hotel.findUser(Integer.parseInt(id_signInField.getText()));
@@ -209,7 +209,8 @@ public class HotelReservationSystem {
 						signInPanel.remove(error);
 						frame.remove(signInPanel);
 						frame.add(signedInPanel);
-						frame.setSize(400, 200);
+						frame.setSize(400, 70);
+						frame.revalidate();
 						//frame.pack();
 					}
 				}
@@ -234,8 +235,8 @@ public class HotelReservationSystem {
 					signUpPanel.remove(error);
 					frame.remove(signUpPanel);
 					frame.add(signedInPanel);
-					frame.setSize(400, 200);
-					//frame.revalidate();
+					frame.setSize(400, 70);
+					frame.revalidate();
 				}
 		}
 	});
@@ -292,7 +293,7 @@ public class HotelReservationSystem {
 		});
 
 		//frame.pack();
-		frame.setSize(500, 250);
+		frame.setSize(200, 70);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 	}
