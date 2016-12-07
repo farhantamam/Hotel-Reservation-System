@@ -15,6 +15,13 @@ public class DayReservedEntry {
 		return user;
 	}
 	public boolean matches(Date date) {
-	    return date.equals(day);
+	    if(date.getYear() == (this.getDay().getYear())) {
+		    if(date.getMonth() == (this.getDay().getMonth())) {
+			    if(date.getDate() == (this.getDay().getDate())) {
+			    	return true;
+			    }
+		    }
+	    }
+		return false;
 	}
 }
