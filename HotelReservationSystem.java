@@ -2,6 +2,9 @@ import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Date;
+import java.util.GregorianCalendar;
+
 import javax.swing.*;
 
 import com.sun.javafx.geom.transform.GeneralTransform3D;
@@ -19,8 +22,37 @@ public class HotelReservationSystem {
 		JFrame frame = new JFrame("Hotel Reservation System");
 
 		Hotel hotel = Hotel.getInstance();
-		User guest = hotel.getCurrentGuest();//this is set once the user logs in
-
+		//User guest = hotel.getCurrentGuest();//this is set once the user logs in
+		
+		/*//this part is for testing purposes
+		GuestUser guest = hotel.createGuestUser(1, "test");
+		//hotel.setCurrentGuest(guest);
+		Room r101 = hotel.getAllLuxoriousRooms().get(0);
+		Room r7 = hotel.getAllEconomyRooms().get(6);
+		if( guest.makeReservation(new Date(2016-1900, 11, 5), new Date(2017-1900, 0, 5), r101) )
+			System.out.println("successfully booked room number: " + r101.getRoomId());
+		else System.out.println("Error: room wasn't booked");
+		//System.out.println(r101.reserved(new Date(2016-1900, 11, 1)).getUserName());
+		System.out.println(r101.reserved(new Date(2016-1900, 11, 7)).getUserName());
+		System.out.println(r101.isAvailable(new Date(2016-1900, 11, 2), new Date(2017-1900, 0, 4)));
+		System.out.println(r101.isAvailable(new GregorianCalendar().getTime(), new GregorianCalendar().getTime()));
+		System.out.println(r101.isAvailable(new Date(2017-1900, 0, 12), new Date(2017-1900, 0, 12)));
+		/*for(DayReservedEntry d: r101.getDayReservations()) {
+			System.out.printf("DayReservedEntry for room %d: %s%n", r101.getRoomId(), d.getDay().toString());
+		}*/
+		//System.out.println(r101.get(new Date(2017-1900, 0, 12)).getDay().toString());
+		/*
+		guest.makeReservation(new Date(2016-1900, 11, 22), new Date(2016-1900, 11, 24), r7);
+		System.out.println("successfully booked room number: " + r7.getRoomId());
+		//System.out.println(r7.reserved(new Date(2016-1900, 11, 1)).getUserName());
+		//System.out.println(r7.reserved(new Date(2016-1900, 11, 28)).getUserName());
+		System.out.println(r7.isAvailable(new Date(2016-1900, 11, 2), new Date(2017-1900, 0, 4)));
+		System.out.println(r7.isAvailable(new GregorianCalendar().getTime(), new GregorianCalendar().getTime()));
+		System.out.println(r7.isAvailable(new Date(2016-1900, 11, 2), new Date(2016-1900, 11, 4)));
+		System.out.println(r7.isAvailable(new Date(2017-1900, 0, 2), new Date(2017-1900, 0, 4)));
+		*/
+		// until here
+		
 		JTextArea error = new JTextArea("error");
 		error.setEditable(false);
 		error.setForeground(Color.RED);
@@ -126,16 +158,26 @@ public class HotelReservationSystem {
 		JPanel managerPanel = new JPanel();
 		JButton loadButton = new JButton("Load");
 		JButton viewButton = new JButton("View");
-
 		viewButton.addActionListener(new ActionListener() {
-
 			public void actionPerformed(ActionEvent e) {
 				hotel.getManager().getViewFrame(hotel.getAllRooms());
 			}
 		});
 
 		JButton saveButton = new JButton("Save");
+		saveButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				hotel.getManager().save();//make sure this part is working
+			}
+		});
 		JButton quitButton = new JButton("Quit");
+		quitButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				hotel.getManager().save();//make sure this part is working
+				frame.setVisible(false);
+				frame.dispose();
+			}
+		});
 		managerPanel.add(loadButton);
 		managerPanel.add(viewButton);
 		managerPanel.add(saveButton);
@@ -293,7 +335,7 @@ public class HotelReservationSystem {
 		});
 
 		//frame.pack();
-		frame.setSize(200, 70);
+		frame.setSize(250, 70);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 	}
