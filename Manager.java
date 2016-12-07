@@ -1,6 +1,7 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -39,8 +40,14 @@ public class Manager extends User {
 	GregorianCalendar calendar;
 	
 	private JPanel roomViewPane;
+	private JPanel availRoomPane;
+	private JPanel reservedRoomPane;
 	private JLabel availRooms;
 	private JLabel reservedRooms;
+	
+	private JPanel roomInfoPane;
+	private JLabel roomNumLbl;
+	private JLabel reservedBy;
 
 	public Manager(int uid, String uname) {
 		super(uid, uname);
@@ -81,13 +88,22 @@ public class Manager extends User {
 	public void getViewFrame(List<Room> rooms)
 	{
 		viewFrame = new JFrame("Manager View");
-		panel = new JPanel();//new BorderLayout());
-		monthViewPane = new JPanel(new BorderLayout());
+		panel = new JPanel(new BorderLayout());
+		
+		monthViewPane = new JPanel();//new BorderLayout());
+		monthViewPane.setPreferredSize(new Dimension(170, 100));
+		
 		roomViewPane = new JPanel(new BorderLayout());
-
+		roomViewPane.setBorder(new LineBorder(Color.BLACK));
+		
+		/*roomInfoPane = new JPanel(new BorderLayout());
+		roomInfoPane.setBorder(new LineBorder(Color.BLACK));
+		roomInfoPane.setPreferredSize(new Dimension(200, 100));
+		*/
 		calendar = new GregorianCalendar(); 
 		getMonthView(calendar.get(Calendar.DAY_OF_MONTH));
 		getRoomView(rooms);
+		getRoomInfoView(0, "");
 		
 		viewFrame.add(panel);
 		viewFrame.pack();
@@ -95,39 +111,68 @@ public class Manager extends User {
 		viewFrame.setVisible(true);
 	}
 
-	private void updateViewFrame()
+	private void updateViewFrame(boolean showHighlight)
 	{
 		panel.removeAll();
-		//use it once monthView part is done
+		
+		monthViewPane = new JPanel();//new BorderLayout());
+		monthViewPane.setPreferredSize(new Dimension(170, 100));
+		
+		roomViewPane = new JPanel(new BorderLayout());
+		roomViewPane.setBorder(new LineBorder(Color.BLACK));
+		
+		/*roomInfoPane = new JPanel(new BorderLayout());
+		roomInfoPane.setBorder(new LineBorder(Color.BLACK));
+		roomInfoPane.setPreferredSize(new Dimension(200, 100));
+		*/
+		//calendar = new GregorianCalendar(); 
+		getMonthView(showHighlight ? calendar.get(Calendar.DAY_OF_MONTH) : 0);
+		getRoomView(showHighlight ? Hotel.getInstance().getAllRooms() : null);
+		getRoomInfoView(0, "");
+		
+		panel.revalidate();
 	}
 	
 	private void getRoomView(List<Room> rooms)
 	{
 		availRooms = new JLabel("Available Rooms:");
 		reservedRooms = new JLabel("Reserved Rooms:");
-		roomViewPane.add(availRooms, BorderLayout.NORTH);
-		roomViewPane.add(getAvailRooms(rooms));
-		roomViewPane.add(reservedRooms, BorderLayout.CENTER);
-		roomViewPane.add(getReservedRooms(rooms), BorderLayout.SOUTH);
-		panel.add(roomViewPane);
+		availRoomPane = new JPanel(new BorderLayout());
+		reservedRoomPane = new JPanel(new BorderLayout());
+		
+		availRoomPane.add(availRooms, BorderLayout.NORTH);
+		if(rooms != null) availRoomPane.add(getAvailRooms(rooms), BorderLayout.CENTER);
+		roomViewPane.add(availRoomPane, BorderLayout.NORTH);
+		
+		reservedRoomPane.add(reservedRooms, BorderLayout.NORTH);
+		if(rooms != null) reservedRoomPane.add(getReservedRooms(rooms), BorderLayout.CENTER);
+		roomViewPane.add(reservedRoomPane, BorderLayout.CENTER);
+		
+		panel.add(roomViewPane, BorderLayout.CENTER);
+		//roomViewPane.revalidate();//
 	}
 
 	private JPanel getAvailRooms(List<Room> rooms) {
 		JPanel availPane = new JPanel();
+		availPane.setPreferredSize(new Dimension(400, 150));
+		
 		List<Room> available = new ArrayList<>();
 		for(Room r: rooms)
 		{
 			User u = r.reserved(calendar.getTime());
+			//if(r.isAvailable(calendar.getTime(), calendar.getTime()))
 			if(u == null)
 				available.add(r);
 		}
 		for(Room ar: available)
 		{
 			JButton roomBtn = new JButton(Integer.toString(ar.getRoomId()));
-			System.out.println(roomBtn.getText());
+			//System.out.println(roomBtn.getText());
 			roomBtn.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					//update room info 
+					panel.remove(roomInfoPane);
+					
+					getRoomInfoView(ar.getRoomId(), "-");
 				}
 			});
 			availPane.add(roomBtn);
@@ -137,11 +182,14 @@ public class Manager extends User {
 	
 	private JPanel getReservedRooms(List<Room> rooms) {
 		JPanel reservedPane = new JPanel();
+		reservedPane.setPreferredSize(new Dimension(400, 150));
 		List<Room> reserved = new ArrayList<>();
 		for(Room r: rooms)
 		{
 			User u = r.reserved(calendar.getTime());
+			//if(!r.isAvailable(calendar.getTime(), calendar.getTime()))
 			if(u != null)
+
 				reserved.add(r);
 		}
 		for(Room rr: reserved)
@@ -150,25 +198,49 @@ public class Manager extends User {
 			roomBtn.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					//update room info 
+					panel.remove(roomInfoPane);
+					getRoomInfoView(rr.getRoomId(), rr.reserved(calendar.getTime()).getUserName());
 				}
 			});
 			reservedPane.add(roomBtn);
 		}
 		return reservedPane;
 	}
+	
+	private void getRoomInfoView(int roomNum, String guestName) {
+		//panel.remove(roomInfoPane);
+		roomInfoPane = new JPanel(new BorderLayout());
+		roomInfoPane.setBorder(new LineBorder(Color.BLACK));
+		roomInfoPane.setPreferredSize(new Dimension(200, 100));
+		
+		String roomString = "Room Number: ";
+		String reservedString = "Reserved By: ";
+		if(roomNum > 0) {
+			roomString+=roomNum;
+		}
+		if(!guestName.equals("")) {
+			reservedString+=guestName;
+		}
+		roomNumLbl = new JLabel(roomString);
+		reservedBy = new JLabel(reservedString);
+		roomInfoPane.add(roomNumLbl, BorderLayout.NORTH);
+		roomInfoPane.add(reservedBy, BorderLayout.CENTER);
+		panel.add(roomInfoPane, BorderLayout.EAST);
+		roomInfoPane.revalidate();//
+	}
 
 	private void getMonthView(int highlight)
 	{
-		panel.removeAll();
+		//panel.removeAll();
 		monthViewPane.removeAll();//to make sure nothing gets overlapped b/c of subsequent calls	
-		monthViewPane.add(getMonthYearPane(), BorderLayout.NORTH);
+		monthViewPane.add(getMonthYearPane());//, BorderLayout.NORTH);
 		//getMonthYearPane();
-		week = new JLabel("Su  Mo  Tu  We  Th  Fr  Sa");
-		monthViewPane.add(week, BorderLayout.CENTER);
+		week = new JLabel("  Su  Mo  Tu  We  Th  Fr  Sa");
+		monthViewPane.add(week);//, BorderLayout.CENTER);
 		buttons = new JButton[6][7];	
-		monthViewPane.add( addButtons(), BorderLayout.SOUTH );
+		monthViewPane.add( addButtons());//, BorderLayout.SOUTH );
 		highlight( Integer.toString(highlight) );
-		panel.add(monthViewPane);
+		panel.add(monthViewPane, BorderLayout.WEST);
 		viewFrame.revalidate();
 	}
 
@@ -181,7 +253,8 @@ public class Manager extends User {
 		monthPrevious.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				calendar.add(Calendar.MONTH, -1);
-				getMonthView(0);
+				//getMonthView(0);
+				updateViewFrame(false);
 			}
 		});
 
@@ -192,7 +265,8 @@ public class Manager extends User {
 			public void actionPerformed(ActionEvent e) {
 				calendar.add(Calendar.MONTH, 1);
 				//getViewFrame();
-				getMonthView(0);//this returns new month with no days highlighted
+				//getMonthView(0);//this returns new month with no days highlighted
+				updateViewFrame(false);
 			}
 		});
 
@@ -201,7 +275,8 @@ public class Manager extends User {
 		yearPrevious.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				calendar.add(Calendar.YEAR, -1);
-				getMonthView(0);
+				//getMonthView(0);
+				updateViewFrame(false);
 			}
 		});
 
@@ -211,7 +286,8 @@ public class Manager extends User {
 		yearNext.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				calendar.add(Calendar.YEAR, 1);
-				getMonthView(0);
+				//getMonthView(0);
+				updateViewFrame(false);
 			}
 		});
 
@@ -228,8 +304,6 @@ public class Manager extends User {
 
 	private void highlight(String dayStr) 
 	{
-		//if(dayStr.equals(null))
-		//return;
 		for(int i=0; i<buttons.length; i++)
 		{
 			for(int j=0; j<buttons[0].length; j++)
@@ -245,6 +319,7 @@ public class Manager extends User {
 	private JPanel addButtons()
 	{
 		btnPanel = new JPanel();
+		btnPanel.setPreferredSize(new Dimension(170, 100));
 		btnPanel.setFont(new Font("Arial", Font.PLAIN, 10));
 		btnPanel.setLayout(new GridLayout(0, 7, 3, 3));
 		//panel.setBackground(Color.white);
@@ -273,8 +348,9 @@ public class Manager extends User {
 					JButton source = (JButton) event.getSource();
 					int newDay = Integer.parseInt(source.getText());
 					calendar.set(Calendar.DAY_OF_MONTH, newDay);
-					highlight(source.getText());
+					//highlight(source.getText());
 					//add appropriate method to display a proper view
+					updateViewFrame(true);
 				}
 			});
 
@@ -299,8 +375,8 @@ public class Manager extends User {
 							int newDay = Integer.parseInt(source.getText());
 							calendar.set(Calendar.DAY_OF_MONTH, newDay);
 							//numBtn.setForeground(Color.GRAY);
-							highlight(source.getText());
-							//updateDayView(calendar.getTime());
+							//highlight(source.getText());
+							updateViewFrame(true);
 						}
 					});
 
@@ -321,16 +397,16 @@ public class Manager extends User {
 
 	}
 
-	private void save()
+	public void save()
 	{
-
+		//update it or fix the existing one on the bottom
 	}
 
-	private void quit()
+	/*private void quit()
 	{
 		save();
 		// this function should probably be in main
-	}
+	}*/
 
 	// fix this so it casts to proper  format
 	private void load(File thisFile)
