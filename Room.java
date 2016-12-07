@@ -6,11 +6,15 @@ import java.util.Iterator;
 import java.util.List;
 
 public abstract class Room {
-    int roomId;
-    List<DayReservedEntry> dayReservations = new ArrayList<>();
+    private int roomId;
+    private List<DayReservedEntry> dayReservations = new ArrayList<>();
     
     public Room(int roomId) {
         this.roomId = roomId;
+	}
+    //for testing
+	public List<DayReservedEntry> getDayReservations() {
+		return dayReservations;
 	}
 	abstract int cost();
     abstract boolean isEconomical();
@@ -45,12 +49,14 @@ public abstract class Room {
 	}
 	
 	// check if room is available for the duration [from, to] days
+	// has some problem, doesn't seem to return correct answer all the time
 	public boolean isAvailable(Date from, Date to) {
 		Calendar cal = Calendar.getInstance();
 		cal.clear();
 		cal.setTime(from);
 		Date w = cal.getTime();
-		while (!w.equals(to)) {
+		//System.out.println("inside isAvail, date: " + w.toString());
+		while (!compareDates(w, to)) {
 			if (get(cal.getTime()) != null) {
 				return false;
 			}
@@ -68,8 +74,9 @@ public abstract class Room {
 		cal.clear();
 		cal.setTime(from);
 		List<DayReservedEntry> entries = new ArrayList<>();
-		while (!cal.getTime().equals(to)) {
+		while (!compareDates(cal.getTime(), to)) {
 			entries.add(new DayReservedEntry(cal.getTime(), user));
+			//System.out.printf("date reserved for room %d: %s%n", getRoomId(), entries.get(entries.size()-1).getDay().toString());
 			cal.add(Calendar.DATE, 1);
 		}
 		entries.add(new DayReservedEntry(to, user));
@@ -81,9 +88,23 @@ public abstract class Room {
 	}
 	/** if today is reserved, determine who reserved?
 	 *  else return null for available indication
+	 *  	~ has some problem, doesn't seem to return correct answer all the time
+
 	*/
 	public User reserved(Date today) {
 		DayReservedEntry entry = get(today);
         return entry != null ? entry.getUser() : null;
+	}
+	
+	private boolean compareDates(Date from, Date to)
+	{
+		if(from.getYear() == (to.getYear())) {
+		    if(from.getMonth() == (to.getMonth())) {
+			    if(from.getDay() == (to.getDay())) {
+			    	return true;
+			    }
+		    }
+	    }
+		return false;
 	}
 }
