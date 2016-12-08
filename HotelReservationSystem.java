@@ -1,11 +1,19 @@
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import com.sun.javafx.geom.transform.GeneralTransform3D;
 
@@ -53,6 +61,8 @@ public class HotelReservationSystem {
 		*/
 		// until here
 		
+		//replace error with JOptionPane.show...(error message)
+		//only used by signIn and signUp panel
 		JTextArea error = new JTextArea("error");
 		error.setEditable(false);
 		error.setForeground(Color.RED);
@@ -82,9 +92,9 @@ public class HotelReservationSystem {
 
 		JPanel checkInPanel = new JPanel();
 		checkInPanel.setLayout(new GridLayout(2,2));
-		JLabel checkInLabel=new JLabel("Check in");
-		JLabel checkOutLabel=new JLabel("Check out");
-		JTextField checkInField= new JTextField(10);
+		JLabel checkInLabel=new JLabel("Check in (mm/dd/yyyy)");
+		JLabel checkOutLabel=new JLabel("Check out (mm/dd/yyyy)");
+		JTextField checkInField=new JTextField(10);
 		JTextField checkOutField= new JTextField(10);
 		checkInPanel.add(checkInLabel);
 		checkInPanel.add(checkOutLabel);
@@ -92,30 +102,42 @@ public class HotelReservationSystem {
 		checkInPanel.add(checkOutField);
 
 		JPanel roomTypePanel= new JPanel();
-		JLabel roomTypeLabel=new JLabel("Room type");
-		JButton regularButton=new JButton("$200");
-		JButton luxuryButton =new JButton("$80");
-		JButton nextButton =new JButton("Next");
+		JLabel roomTypeLabel=new JLabel("Room type:");
+		JButton luxuryButton=new JButton("$200");
+		JButton regularButton =new JButton("$80");
+		//JButton nextButton =new JButton("Next");
 
 		roomTypePanel.add(roomTypeLabel);
-		roomTypePanel.add(luxuryButton);
 		roomTypePanel.add(regularButton);
-		roomTypePanel.add(nextButton);
-
+		roomTypePanel.add(luxuryButton);
+		//roomTypePanel.add(nextButton);
 
 		preReservationPanel.add(checkInPanel);
 		preReservationPanel.add(roomTypePanel);
 
+		
+		// used in one of the buttons in preReservationPanel
+		JFrame reservationFrame = new JFrame("Room Availability");
+		
 		JPanel reservationPanel=new JPanel();
 		reservationPanel.setLayout(new BoxLayout(reservationPanel,BoxLayout.X_AXIS));
-
-		JPanel roomAvailablePanel=new JPanel();
-		JLabel availableRoomsLabel=new JLabel(" Available Rooms "+ "Start-End");
-
+		
+		final RoomAvailabilityPanel RoomAvailabilityModel = (new HotelReservationSystem()).new RoomAvailabilityPanel();
+		JPanel roomAvailablePanel=new JPanel(new BorderLayout());
+		final JLabel availableRoomsLabel=new JLabel(" Available Rooms            "+ "Start-End           ");
+		final JTextArea roomList = new JTextArea();
 		roomAvailablePanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
-
-
-		roomAvailablePanel.add(availableRoomsLabel);
+		roomAvailablePanel.add(availableRoomsLabel, BorderLayout.NORTH);
+		roomAvailablePanel.add(roomList, BorderLayout.CENTER);
+		
+		ChangeListener cl = new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				availableRoomsLabel.setText(RoomAvailabilityModel.getLabel());
+				roomList.setText(RoomAvailabilityModel.getTextArea());
+			}
+		};
+		RoomAvailabilityModel.addListner(cl);
+		
 		//include the list of reserved rooms
 		JPanel confirmationPanel=new JPanel();
 		confirmationPanel.setLayout(new BoxLayout(confirmationPanel,BoxLayout.Y_AXIS));
@@ -137,10 +159,16 @@ public class HotelReservationSystem {
 		confirmationPanel.add(northPanel);
 		confirmationPanel.add(southPanel);
 
-
 		reservationPanel.add(roomAvailablePanel);
 		reservationPanel.add(confirmationPanel);
+		
+		reservationFrame.add(reservationPanel);
+		reservationFrame.setLocation(0, 162);
+		reservationFrame.pack();
+		reservationFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		reservationFrame.setVisible(false);
 
+		
 		JPanel signUpPanel = new JPanel();
 		JLabel id_signUp_Label = new JLabel("id:");
 		JLabel name_signUp_Label = new JLabel("Name:");
@@ -292,70 +320,133 @@ public class HotelReservationSystem {
 				frame.pack();
 			}
 		});
-
-		nextButton.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e)
-			{
-				String checkInDate = checkInField.getText();
-				String checkOutDate=checkOutField.getText();
-				/*try
-				{
-				Date startDate= formatter.parse(checkInDate);
-				Date endDate=formatter.parse(checkOutDate);
-				System.out.println(new Date());
-				/*if(startDate.compareTo(endDate)>0)
-				{
-					JOptionPane.showMessageDialog(null, "Error!! Invalid Request");
-					frame.add(preReservationPanel);
+				
+		regularButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+				Date checkInDate = null;
+				Date checkOutDate = null;
+				try {
+					checkInDate = dateFormat.parse(checkInField.getText());
+					checkOutDate = dateFormat.parse(checkOutField.getText());
+				} catch (ParseException e1) {
+					JOptionPane.showMessageDialog(null, "Error: either Check in/out date is formatted Wrong.", "ERROR", JOptionPane.ERROR_MESSAGE);
+					return;
 				}
-				else	
-				if(startDate.compareTo(new Date())<0||endDate.compareTo(new Date())<0)
+				// enforce all the constraints 
+				if(checkDates(checkInDate, checkOutDate)) 
 				{
-					JOptionPane.showMessageDialog(null, "Error!! Invalid Request");
-					frame.add(preReservationPanel);
+					reservationFrame.setVisible(true);
+					RoomAvailabilityModel.mutator(checkInDate, checkOutDate, (ArrayList)hotel.getAllEconomyRooms());
 				}
-				else
-				 */
-				frame.remove(preReservationPanel);
-				frame.add(reservationPanel);
-				//frame.setSize(400, 200);
-				frame.pack();
-				//System.out.println(startDate);
-				//System.out.println(endDate);
 			}
-			/*}
-
-				catch(ParseException p)
-				{
-					p.printStackTrace();
-				}
-
-			 
-			}*/
 		});
+		
+		luxuryButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+				Date checkInDate = null;
+				Date checkOutDate = null;
+				try {
+					checkInDate = dateFormat.parse(checkInField.getText());
+					checkOutDate = dateFormat.parse(checkOutField.getText());
+				} catch (ParseException e1) {
+					//e1.printStackTrace();
+					JOptionPane.showMessageDialog(null, "Error: either Check in/out date is formatted Wrong.", "ERROR", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				// enforce all the constraints 
+				if(checkDates(checkInDate, checkOutDate)) 
+				{
+					reservationFrame.setVisible(true);
+					RoomAvailabilityModel.mutator(checkInDate, checkOutDate, (ArrayList)hotel.getAllLuxoriousRooms());
+				}			
+			}
+		});
+
 
 		//frame.pack();
 		frame.setSize(250, 70);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 	}
-	/*
-	private static JPanel getMainUserPane()
+	
+	//return true if there are no errors; false otherwise
+	private static boolean checkDates(Date checkInDate, Date checkOutDate)
 	{
-		JPanel panel = new JPanel();
-		JButton make = new JButton("Make a Reservation");
-		JButton viewCancel = new JButton("View/Cancel a Reservation");
-		panel.add(make);
-		panel.add(viewCancel);
-		make.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e)
-			{
-				frame.remove(signedInPanel);
-				frame.add(preReservationPanel);
-				//frame.setSize(400, 200);
-				frame.pack();
+		Date today = new Date();
+		Date myDate = new Date(today.getYear(),today.getMonth(),today.getDate());
+		//make sure Check In date is not after Check Out date
+		if(checkInDate.compareTo(checkOutDate)>0)
+		{
+			JOptionPane.showMessageDialog(null, "Error!! Invalid Request\nCheck In date cannot be after Check Out date.", "ERROR", JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		//make sure Check In and Check Out date is not before today
+		else if(checkInDate.compareTo(myDate)<0 ||checkOutDate.compareTo(myDate)<0)
+		{
+			JOptionPane.showMessageDialog(null, "Error!! Invalid Request\nCheck In/Out date cannot be in the past.", "ERROR", JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		//make sure Check In and Check Out date is not more than 60 nights
+		// in this method (in general) 1 day is considered 1 night stay
+		// i.e. a Reservation from 12/01/2016 to 12/01/2016 => 1 night stay
+		else if(Duration.of(checkOutDate.getTime() - checkInDate.getTime(), ChronoUnit.MILLIS).toDays() > 60)
+		{
+			JOptionPane.showMessageDialog(null, "Error!! Invalid Request\nThe length of stay cannot be longer than 60 nights.", "ERROR", JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		return true;
+	}
+	
+	private class RoomAvailabilityPanel
+	{
+		private String label;
+		private String textArea;
+		private ArrayList<ChangeListener> views;
+		
+		public RoomAvailabilityPanel() {
+			label = "";
+			textArea = "";
+			this.views = new ArrayList<ChangeListener>();
+		}
+		public String getLabel() {
+			return label;
+		}
+		
+		public String getTextArea() {
+			return textArea;
+		}
+		
+		public void mutator(Date checkIn, Date checkOut, ArrayList<Room> rooms) {
+			label = " Available Rooms "+ convetToString(checkIn)+"-"+convetToString(checkOut);
+			String room = "";
+			for(int i = 0; i<rooms.size(); i++) {
+				Room r = rooms.get(i);
+				if(r.isAvailable(checkIn, checkOut)) {
+					if(i==rooms.size()-1) room+=r.getRoomId();
+					else if(i==rooms.size()/2) room+=(r.getRoomId()+",\n" );
+					else room+=(r.getRoomId()+", " );
+				}
 			}
-		});
-		return panel;
-	}*/
+			textArea = room;
+			System.out.println("textArea: "+textArea);
+			notifyView();
+		}
+		
+		private String convetToString(Date date) {
+			return (""+ (date.getMonth()+1) +"/"+date.getDate()+"/"+(date.getYear()-100));
+		}
+		
+		private void notifyView() {
+			ChangeEvent e = new ChangeEvent(this);
+			for(ChangeListener c: views){
+				c.stateChanged(e);
+			}
+		}
+		
+		private void addListner(ChangeListener cl) {
+			views.add(cl);		
+		}
+	}
 }
