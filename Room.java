@@ -56,7 +56,7 @@ public abstract class Room {
 		cal.setTime(from);
 		Date w = cal.getTime();
 		//System.out.println("inside isAvail, date: " + w.toString());
-		while (!compareDates(w, to)) {
+		while (!datesEqual(w, to)) {
 			if (get(cal.getTime()) != null) {
 				return false;
 			}
@@ -74,7 +74,7 @@ public abstract class Room {
 		cal.clear();
 		cal.setTime(from);
 		List<DayReservedEntry> entries = new ArrayList<>();
-		while (!compareDates(cal.getTime(), to)) {
+		while (!datesEqual(cal.getTime(), to)) {
 			entries.add(new DayReservedEntry(cal.getTime(), user));
 			//System.out.printf("date reserved for room %d: %s%n", getRoomId(), entries.get(entries.size()-1).getDay().toString());
 			cal.add(Calendar.DATE, 1);
@@ -96,11 +96,11 @@ public abstract class Room {
         return entry != null ? entry.getUser() : null;
 	}
 	
-	private boolean compareDates(Date from, Date to)
+	private boolean datesEqual(Date from, Date to)
 	{
 		if(from.getYear() == (to.getYear())) {
 		    if(from.getMonth() == (to.getMonth())) {
-			    if(from.getDay() == (to.getDay())) {
+			    if(from.getDate() == (to.getDate())) {
 			    	return true;
 			    }
 		    }
