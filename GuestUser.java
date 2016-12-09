@@ -4,11 +4,13 @@ import java.util.Date;
 import java.util.List;
 
 public class GuestUser extends User {
-    List<Reservation> myReservations;
+    private List<Reservation> myReservations;
+    private List<Reservation> transaction;
 
 	public GuestUser(int uid, String uname) {
         super(uid, uname);
         this.myReservations = new ArrayList<>();
+        this.transaction = new ArrayList<>();
 	}
 	
     public boolean isGuest() {
@@ -50,6 +52,7 @@ public class GuestUser extends User {
 		return available;
 	}
 	// choose this room reservation [from, to] days
+	// stores it in transaction array, until that transaction is done
 	boolean makeReservation(Date from, Date to, Room room) {
 		// check again if room is indeed available
 		if (!room.isAvailable(from, to)) {
@@ -58,10 +61,18 @@ public class GuestUser extends User {
 		// make the reservation active
 		Reservation r = new Reservation(from, to, this, room);
 		r.setActive(true);
-		myReservations.add(r);
+		transaction.add(r);
 		room.reserved(from, to, this);
 		return true;
 	}
+	
+	public void done() {
+		myReservations.addAll(transaction);
+		// not sure if this will work as intended
+		// maybe should just instantiate again with "new"
+		transaction.removeAll(transaction);
+	}
+	
 	void makeReceipt(Receipt receipt) {
 		receipt.print(myReservations, this);
 	}
