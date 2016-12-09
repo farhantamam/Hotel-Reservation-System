@@ -15,8 +15,6 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import com.sun.javafx.geom.transform.GeneralTransform3D;
-
 public class HotelReservationSystem {
 
 	/**
@@ -32,7 +30,7 @@ public class HotelReservationSystem {
 		Hotel hotel = Hotel.getInstance();
 		//User guest = hotel.getCurrentGuest();//this is set once the user logs in
 		
-		/*//this part is for testing purposes
+		///*//this part is for testing purposes
 		GuestUser guest = hotel.createGuestUser(1, "test");
 		//hotel.setCurrentGuest(guest);
 		Room r101 = hotel.getAllLuxoriousRooms().get(0);
@@ -49,7 +47,7 @@ public class HotelReservationSystem {
 			System.out.printf("DayReservedEntry for room %d: %s%n", r101.getRoomId(), d.getDay().toString());
 		}*/
 		//System.out.println(r101.get(new Date(2017-1900, 0, 12)).getDay().toString());
-		/*
+		///*
 		guest.makeReservation(new Date(2016-1900, 11, 22), new Date(2016-1900, 11, 24), r7);
 		System.out.println("successfully booked room number: " + r7.getRoomId());
 		//System.out.println(r7.reserved(new Date(2016-1900, 11, 1)).getUserName());
@@ -58,7 +56,7 @@ public class HotelReservationSystem {
 		System.out.println(r7.isAvailable(new GregorianCalendar().getTime(), new GregorianCalendar().getTime()));
 		System.out.println(r7.isAvailable(new Date(2016-1900, 11, 2), new Date(2016-1900, 11, 4)));
 		System.out.println(r7.isAvailable(new Date(2017-1900, 0, 2), new Date(2017-1900, 0, 4)));
-		*/
+		//*/
 		// until here
 		
 		//replace error with JOptionPane.show...(error message)
@@ -320,10 +318,10 @@ public class HotelReservationSystem {
 				frame.pack();
 			}
 		});
-				
+		
+		SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
 		regularButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+			public void actionPerformed(ActionEvent e) {						
 				Date checkInDate = null;
 				Date checkOutDate = null;
 				try {
@@ -344,7 +342,6 @@ public class HotelReservationSystem {
 		
 		luxuryButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
 				Date checkInDate = null;
 				Date checkOutDate = null;
 				try {
@@ -361,6 +358,51 @@ public class HotelReservationSystem {
 					reservationFrame.setVisible(true);
 					RoomAvailabilityModel.mutator(checkInDate, checkOutDate, (ArrayList)hotel.getAllLuxoriousRooms());
 				}			
+			}
+		});
+		
+		confirmButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int roomNum;
+				if(roomNumberField.getText().isEmpty()) {
+					JOptionPane.showMessageDialog(null, "Error!! Please enter a Room Number.", "ERROR", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				try {
+					roomNum = Integer.parseInt(roomNumberField.getText());
+				} catch (NumberFormatException e1) {
+					JOptionPane.showMessageDialog(null, "Error!! Invalid Room Number!", "ERROR", JOptionPane.ERROR_MESSAGE);
+					return; }
+				Date checkInDate = null;
+				Date checkOutDate = null;
+				try {
+					checkInDate = dateFormat.parse(checkInField.getText());
+					checkOutDate = dateFormat.parse(checkOutField.getText());
+				} catch (ParseException e1) {}// dates are already checked earlier
+				if(roomNum < 11) { //regular room
+					roomNum--;
+					if(hotel.getCurrentGuest().makeReservation(checkInDate, checkOutDate, hotel.getAllEconomyRooms().get(roomNum)))
+					{
+						System.out.println("Room Succussfully Reserved!");
+					}
+					else System.out.println("Error, room wasn't reserved."); 
+				}
+				else { //luxury room
+					roomNum = roomNum % 10 - 1;
+					if(hotel.getCurrentGuest().makeReservation(checkInDate, checkOutDate, hotel.getAllLuxoriousRooms().get(roomNum)))
+					{
+						System.out.println("Room Succussfully Reserved!");
+					}
+					else System.out.println("Error, room wasn't reserved."); 
+				}
+			}
+		});
+		
+		moreReservationButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				reservationFrame.setVisible(false);
+				checkInField.setText("");
+				checkOutField.setText("");
 			}
 		});
 
