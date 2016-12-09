@@ -1,4 +1,9 @@
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -116,13 +121,54 @@ public class Hotel {
     	}
     	return null;
     }
-
-    void load() {
-    	// :todo: load users, rooms, reservations
-    }
     
-    void save() {
-    	// :todo: save users, rooms, reservations
+    // fix load and save (file DNE)
+    public void load() {
+        try {
+       		System.out.println("Start loading data");
+            FileInputStream fi = new FileInputStream("serialized.bin");
+            ObjectInputStream si = new ObjectInputStream(fi);
+            users = (List<User>)si.readObject();
+            System.out.println("User: " + users);
+            rooms = (List<Room>) si.readObject();
+            System.out.println("Rooms: " + rooms);
+            for (Room room : rooms) {
+            	if (room.isEconomical())
+            		economy.add(room);
+            	else luxorious.add(room);
+            }
+ 
+            for (User user : users) {
+            	if (!user.isGuest()) {
+            		continue;
+            	}
+            	System.out.println(user);
+            	System.out.println(((GuestUser)user).getAllReservations());
+            }
+            for (Room room : rooms) {
+            	if (!room.getDayReservations().isEmpty()) {
+            		System.out.println(room.getDayReservations());
+                	System.out.println(room);
+            	}
+            }
+       		System.out.println("Loaded data");
+        } catch (FileNotFoundException ffex) { 
+        } catch (Exception e) {
+            System.out.println("Exception in loading" + e);
+            System.exit(1);
+        }    }
+    
+    public void save() {
+    	try {
+            FileOutputStream fo = new FileOutputStream("serialized.bin");
+            ObjectOutputStream so = new ObjectOutputStream(fo);
+            so.writeObject(users);
+            so.writeObject(rooms);
+            so.flush();
+        } catch (Exception e) {
+            System.out.println(e);
+            System.exit(1);
+        }
     }
     
 }
