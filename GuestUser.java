@@ -1,9 +1,12 @@
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class GuestUser extends User {
+	private static final long serialVersionUID = 94289568L;
+	
     private List<Reservation> myReservations;
     private List<Reservation> transaction;
 
@@ -18,9 +21,16 @@ public class GuestUser extends User {
     }
 
 	// get all my current reservations
-	List<Reservation> getAllReservations() {
+	public List<Reservation> getAllReservations() {
 		return myReservations; 
 	}
+	
+	// get all reservations in this transaction
+	public List<Reservation> getTransaction() {
+		return transaction; 
+	}
+		
+	/*
 	// make currently active reservations to accepted 
 	void commitReservations() {
 		for (Reservation entry: myReservations) {
@@ -28,7 +38,7 @@ public class GuestUser extends User {
 				entry.setActive(false);
 			}
 		}
-	}
+	}*/
 	// assume reservation exists in the list
 	boolean cancelReservation(Reservation r) {
 		boolean isRemoved = myReservations.remove(r);
@@ -39,7 +49,7 @@ public class GuestUser extends User {
 		r.releaseRoom();
 		return true;
 	}
-	// get available rooms [from, to] dates for a room type luxory  (/economy)
+	// get available rooms [from, to] dates for a room type luxury  (/economy)
 	List<Room> getAvailableRooms(Date from, Date to, boolean isLuxory) {
 		Hotel hotel = Hotel.getInstance();
 		List<Room> rooms = isLuxory ? hotel.getAllLuxoriousRooms() : hotel.getAllEconomyRooms();
@@ -52,28 +62,39 @@ public class GuestUser extends User {
 		return available;
 	}
 	// choose this room reservation [from, to] days
-	// stores it in transaction array, until that transaction is done
+	// stores it in both transaction and myReservations array, until this transaction is done
 	boolean makeReservation(Date from, Date to, Room room) {
 		// check again if room is indeed available
 		if (!room.isAvailable(from, to)) {
 			return false;
 		}
-		// make the reservation active
 		Reservation r = new Reservation(from, to, this, room);
-		r.setActive(true);
 		transaction.add(r);
-		room.reserved(from, to, this);
+		myReservations.add(r);
+		room.reserve(from, to, this);
 		return true;
 	}
 	
-	public void done() {
-		myReservations.addAll(transaction);
+	//context for strategy
+	public String makeReceipt(Receipt receipt) {
+		String s = receipt.print(this);
+		finishTransaction();
+		return s;
+	}
+	
+	private void finishTransaction() {
 		// not sure if this will work as intended
 		// maybe should just instantiate again with "new"
 		transaction.removeAll(transaction);
 	}
 	
-	void makeReceipt(Receipt receipt) {
-		receipt.print(myReservations, this);
+	public String getReservations() {
+		SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+		String resrvations = " id Room #        From - To\n";
+		for(int i=0; i<myReservations.size(); i++) {
+			Reservation r = myReservations.get(i);
+			resrvations += String.format(" %2d %6d  %10s - %10s %n", (i+1), r.getRoom().getRoomId(), dateFormat.format(r.getFrom()), dateFormat.format(r.getTo()) );
+		}
+		return resrvations;
 	}
 }

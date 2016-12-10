@@ -1,6 +1,8 @@
 
-public class ReservedEntry {
-    private final Room room;
+public class ReservedEntry implements java.io.Serializable {
+	private static final long serialVersionUID = 94289568L;
+	
+	private final Room room;
     private final User user;
 	public ReservedEntry(Room room, User user) {
 		this.room = room;

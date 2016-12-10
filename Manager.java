@@ -1,19 +1,10 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -29,15 +20,15 @@ import java.util.Date;
 import java.util.List;
 
 public class Manager extends User {
+	private static final long serialVersionUID = 94289568L;
 
 	private JFrame viewFrame;
 	private JPanel panel;
 	private JPanel monthViewPane;
-	private JLabel monthYear;	
 	private JLabel week;
 	private JPanel btnPanel;
 	private JButton[][] buttons;
-	GregorianCalendar calendar;
+	private GregorianCalendar calendar;
 	
 	private JPanel roomViewPane;
 	private JPanel availRoomPane;
@@ -74,15 +65,6 @@ public class Manager extends User {
 				reservedRooms.add(new ReservedEntry(entry, user));
 			}
 		}
-	}
-
-	/*
-	 * load two files, users: contains information about user and its reservations
-	 * rooms: stores information regarding all the rooms
-	 */
-	public void load()
-	{
-
 	}
 
 	public void getViewFrame(List<Room> rooms)
@@ -183,16 +165,16 @@ public class Manager extends User {
 	private JPanel getReservedRooms(List<Room> rooms) {
 		JPanel reservedPane = new JPanel();
 		reservedPane.setPreferredSize(new Dimension(400, 150));
-		List<Room> reserved = new ArrayList<>();
+		List<Room> reservedList = new ArrayList<>();
 		for(Room r: rooms)
 		{
 			User u = r.reserved(calendar.getTime());
 			//if(!r.isAvailable(calendar.getTime(), calendar.getTime()))
 			if(u != null)
 
-				reserved.add(r);
+				reservedList.add(r);
 		}
-		for(Room rr: reserved)
+		for(Room rr: reservedList)
 		{
 			JButton roomBtn = new JButton(Integer.toString(rr.getRoomId()));
 			roomBtn.addActionListener(new ActionListener() {
@@ -396,78 +378,5 @@ public class Manager extends User {
 		return btnPanel;   
 
 	}
-
-	public void save()
-	{
-		//update it or fix the existing one on the bottom
-	}
-
-	/*private void quit()
-	{
-		save();
-		// this function should probably be in main
-	}*/
-
-	// fix this so it casts to proper  format
-	private void load(File thisFile)
-	{
-		File file = thisFile;
-		FileInputStream fileIn;
-		ObjectInputStream in;
-		anEvent e;
-		try {
-			fileIn = new FileInputStream(file);
-			in = new ObjectInputStream(fileIn);
-			try{
-				while(true)	
-				{
-					e = (anEvent) in.readObject();
-					//add the corresponding method to record this data
-					//c.addEvent(e);
-				}
-			}
-			catch ( EOFException eof ) { 
-				// ObjectInputStream doesn't have anything similar to hasNext()
-				// therefore, relying on EOF to stop
-				in.close();
-				fileIn.close();
-			} catch (ClassNotFoundException e1) {
-				e1.printStackTrace();
-			}
-		}catch (FileNotFoundException fnf) {
-
-		}catch ( EOFException eof ) { 
-
-		}catch(IOException i) {
-			i.printStackTrace();
-		}
-	}
-	/*
-	private void save(File thisFile)
-	{
-		File file = thisFile;
-		try {
-			FileOutputStream fileOut = new FileOutputStream(file.getName());
-			ObjectOutputStream out = new ObjectOutputStream(fileOut);
-			for(anEvent e: ts)
-			{
-				out.writeObject(e);
-			}
-			out.close();
-			fileOut.close();
-		} catch (FileNotFoundException fnf) {
-			//e.printStackTrace();
-			try {
-				// creates the empty file
-				file.createNewFile();
-			}  catch (Exception x) {
-				// Some other sort of failure, such as permissions.
-				x.printStackTrace();
-				System.err.format("createFile error: %s%n", x);
-			}
-		}catch(IOException i) {
-         i.printStackTrace();
-      }
-	}*/
 
 }

@@ -1,8 +1,10 @@
 
 import java.util.Date;
 
-public class DayReservedEntry {
-    private final Date day;
+public class DayReservedEntry implements java.io.Serializable {
+	private static final long serialVersionUID = 94289568L;
+	
+	private final Date day;
 	private final User user;
     public DayReservedEntry(Date day, User user) {
 		this.day = day;

@@ -1,7 +1,10 @@
 
-public abstract class User {
-    int uid;
-    String userName;
+public abstract class User implements java.io.Serializable {
+    
+	public static final long serialVersionUID = 94289568L;
+	
+	private int uid;
+    private String userName;
 
 	public User(int uid, String uname) {
         this.uid = uid;

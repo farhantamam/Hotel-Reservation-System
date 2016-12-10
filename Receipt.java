@@ -1,6 +1,4 @@
-
-import java.util.List;
-
+//strategy
 public interface Receipt {
-    void print(List<Reservation> reservations, User user);
+    public String print(GuestUser user);
 }

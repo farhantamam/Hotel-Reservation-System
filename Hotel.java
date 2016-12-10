@@ -1,12 +1,11 @@
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 public class Hotel {
@@ -28,6 +27,7 @@ public class Hotel {
         economy = new ArrayList<>();
         makeRooms();
         manager = createManager(1234, "manager");//only one default manager
+        currentGuest = null;
     }
     
 	public static Hotel getInstance() {
@@ -52,16 +52,16 @@ public class Hotel {
 		return manager;
 	}
 
-	List<Room> getAllRooms() {
+	public List<Room> getAllRooms() {
     	return rooms;
     }
-    List<Room> getAllLuxoriousRooms() {
+	public List<Room> getAllLuxoriousRooms() {
     	return luxorious;
     }
-    List<Room> getAllEconomyRooms() {
+	public List<Room> getAllEconomyRooms() {
     	return economy;
     }
-    List<User> getAllUsers() {
+	public List<User> getAllUsers() {
     	return users;
     }
     /**
@@ -125,19 +125,19 @@ public class Hotel {
     // fix load and save (file DNE)
     public void load() {
         try {
-       		System.out.println("Start loading data");
+       		//System.out.println("Start loading data");
             FileInputStream fi = new FileInputStream("serialized.bin");
             ObjectInputStream si = new ObjectInputStream(fi);
             users = (List<User>)si.readObject();
-            System.out.println("User: " + users);
+            //System.out.println("User: " + users);
             rooms = (List<Room>) si.readObject();
-            System.out.println("Rooms: " + rooms);
+            //System.out.println("Rooms: " + rooms);
             for (Room room : rooms) {
             	if (room.isEconomical())
             		economy.add(room);
             	else luxorious.add(room);
             }
- 
+            /*
             for (User user : users) {
             	if (!user.isGuest()) {
             		continue;
@@ -152,6 +152,9 @@ public class Hotel {
             	}
             }
        		System.out.println("Loaded data");
+       		*/
+       		si.close();
+       		fi.close();
         } catch (FileNotFoundException ffex) { 
         } catch (Exception e) {
             System.out.println("Exception in loading" + e);
@@ -159,13 +162,27 @@ public class Hotel {
         }    }
     
     public void save() {
+    	File file = new File("serialized.bin");
     	try {
             FileOutputStream fo = new FileOutputStream("serialized.bin");
             ObjectOutputStream so = new ObjectOutputStream(fo);
             so.writeObject(users);
             so.writeObject(rooms);
             so.flush();
-        } catch (Exception e) {
+            so.close();
+            fo.close();
+        } catch (FileNotFoundException fnf) {
+			//e.printStackTrace();
+			try {
+				// creates the empty file
+				file.createNewFile();
+				save();//dont know if this is necessary
+			}  catch (Exception x) {
+				// Some other sort of failure, such as permissions.
+				x.printStackTrace();
+				System.err.format("createFile error: %s%n", x);
+			}
+		} catch (Exception e) {
             System.out.println(e);
             System.exit(1);
         }

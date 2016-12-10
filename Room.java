@@ -5,8 +5,10 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-public abstract class Room {
-    private int roomId;
+public abstract class Room implements java.io.Serializable {
+	public static final long serialVersionUID = 94289568L;
+	
+	private int roomId;
     private List<DayReservedEntry> dayReservations = new ArrayList<>();
     
     public Room(int roomId) {
@@ -49,7 +51,6 @@ public abstract class Room {
 	}
 	
 	// check if room is available for the duration [from, to] days
-	// has some problem, doesn't seem to return correct answer all the time
 	public boolean isAvailable(Date from, Date to) {
 		Calendar cal = Calendar.getInstance();
 		cal.clear();
@@ -69,7 +70,7 @@ public abstract class Room {
 		return true;
 	}
 	// reserve the room for the all days [from, to]
-	public void reserved(Date from, Date to, User user) {
+	public void reserve(Date from, Date to, User user) {
 		Calendar cal = Calendar.getInstance();
 		cal.clear();
 		cal.setTime(from);
@@ -82,14 +83,14 @@ public abstract class Room {
 		entries.add(new DayReservedEntry(to, user));
 		dayReservations.addAll(entries);
 	}
+	
 	@Override
 	public String toString() {
-		return Integer.toString(roomId); // +"(" + (isEconomical() ? "Econ" : "Lux") + ")";
+		return Integer.toString(roomId) +"(" + (isEconomical() ? "Econ" : "Lux") + ")";
 	}
 	/** if today is reserved, determine who reserved?
 	 *  else return null for available indication
-	 *  	~ has some problem, doesn't seem to return correct answer all the time
-
+	 *  
 	*/
 	public User reserved(Date today) {
 		DayReservedEntry entry = get(today);

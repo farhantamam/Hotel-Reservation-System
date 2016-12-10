@@ -4,19 +4,20 @@ import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 
-public class Reservation {
-    final Date from;
-    final Date to;
-    final User who;
-    final Room room;
-    boolean active;
-	public Reservation(Date from, Date to, User who, Room room) {
-		//super();//who is the parent class of this class?; don't think this is doing anything
+public class Reservation implements java.io.Serializable {
+	private static final long serialVersionUID = 94289568L;
+	
+	private final Date from;
+    private final Date to;
+    private final User who;
+    private final Room room;
+
+    public Reservation(Date from, Date to, User who, Room room) {
+		//super();//who is the parent class of this class? object?; don't think this is doing anything
 		this.from = from;
 		this.to = to;
 		this.who = who;
 		this.room = room;
-		this.active = false;
 	}
 	public Date getFrom() {
 		return from;
@@ -30,12 +31,7 @@ public class Reservation {
 	public Room getRoom() {
 		return room;
 	}
-	public boolean isActive() {
-		return active;
-	}
-	public void setActive(boolean isActive) {
-		this.active = isActive;
-	}
+	
 	int totalCost() {
 		return room.cost() * (int)days();
 	}
