@@ -25,7 +25,9 @@ public class Hotel {
         users = new ArrayList<>();
         luxorious = new ArrayList<>();
         economy = new ArrayList<>();
-        makeRooms();
+        if(!new File("serialized.bin").exists()) {
+        	makeRooms();
+        }
         manager = createManager(1234, "manager");//only one default manager
         currentGuest = null;
     }
