@@ -31,28 +31,23 @@ public class HotelReservationSystem {
 
 		Hotel hotel = Hotel.getInstance();
 		hotel.load();// first thing that needs to happen on start up is load
-		//User guest = hotel.getCurrentGuest();//this is set once the user logs in
+		//guest is set once the user logs in
 		
-		///*//this part is for testing purposes
-		GuestUser guest = hotel.createGuestUser(1, "test");
+		/*//this part is for testing purposes
+		GuestUser guest = hotel.getCurrentGuest();//hotel.createGuestUser(1, "test");
 		Room r101 = hotel.getAllLuxoriousRooms().get(0);
 		Room r7 = hotel.getAllEconomyRooms().get(6);
-		if( guest.makeReservation(new Date(2016-1900, 11, 5), new Date(2017-1900, 0, 5), r101) )
-			System.out.println("successfully booked room number: " + r101.getRoomId());
-		else System.out.println("Error: room wasn't booked");
-		
-		if(guest.makeReservation(new Date(2016-1900, 11, 22), new Date(2016-1900, 11, 24), r7))
-			System.out.println("successfully booked room number: " + r7.getRoomId());
-
-		//*/
+		if(guest != null) {
+			if( guest.makeReservation(new Date(2016-1900, 11, 5), new Date(2017-1900, 0, 5), r101) )
+				System.out.println("successfully booked room number: " + r101.getRoomId());
+			else System.out.println("Error: room wasn't booked");
+			
+			if(guest.makeReservation(new Date(2016-1900, 11, 22), new Date(2016-1900, 11, 24), r7))
+				System.out.println("successfully booked room number: " + r7.getRoomId());
+		}
+		*/
 		// until here
 		
-		//replace error with JOptionPane.show...(error message)
-		//only used by signIn and signUp panel
-		/*JTextArea error = new JTextArea("error");
-		error.setEditable(false);
-		error.setForeground(Color.RED);
-	*/
 		JPanel userPanel = new JPanel();
 		JButton signInBtnInitial = new JButton("Sign In");		
 		JButton signUpBtnInitial = new JButton("Sign Up");
@@ -483,10 +478,11 @@ public class HotelReservationSystem {
 						//System.out.println("Room Succussfully Reserved!");
 					}
 					else {//System.out.println("Error, room wasn't reserved.");
-						JOptionPane.showMessageDialog(null, "Error!! Room wasn't reserved", "ERROR", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(null, "Error!! Room cannot be reserved", "ERROR", JOptionPane.ERROR_MESSAGE);
 						return;
 					}
-					
+					// update view
+					RoomAvailabilityModel.mutator(checkInDate, checkOutDate, (ArrayList)hotel.getAllEconomyRooms());
 					roomNumberField.setText("");
 				}
 			else { //luxury room
@@ -495,9 +491,11 @@ public class HotelReservationSystem {
 					//System.out.println("Room Succussfully Reserved!");
 				}
 				else {//System.out.println("Error, room wasn't reserved.");
-					JOptionPane.showMessageDialog(null, "Error!! Room wasn't reserved", "ERROR", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null, "Error!! Room cannot be reserved", "ERROR", JOptionPane.ERROR_MESSAGE);
 					return;
 				}
+				// update view
+				RoomAvailabilityModel.mutator(checkInDate, checkOutDate, (ArrayList)hotel.getAllLuxoriousRooms());
 				roomNumberField.setText("");
 			}
 			}
