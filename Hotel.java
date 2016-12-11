@@ -28,7 +28,7 @@ public class Hotel {
         if(!new File("serialized.bin").exists()) {
         	makeRooms();
         }
-        manager = createManager(1234, "manager");//only one default manager
+    	manager = createManager(1234, "manager");//only one default manager
         currentGuest = null;
     }
     
@@ -98,7 +98,7 @@ public class Hotel {
         User user = findUser(uid, uname, false);
         if (user == null) {
         	user = new Manager(uid, uname);
-        	users.add(user);
+        	//users.add(user);
         }
         return (Manager)user;
     }
