@@ -1,10 +1,19 @@
 
 import java.util.List;
+/**
+ * Comprehensive Receipt class implements the Receipt interface
+ * 
+ */
 
-//concrete strategy
 public class ComprehensiveReceipt implements Receipt {
 
 	@Override
+	/** print method displays the receipt of the reservation in a detailed format 
+	 * with user name, user id, cost, room number
+	 * @param reservations : list of Reservation
+	 * @param user	: Object of User containing the user info
+	 */
+	
 	public String print(GuestUser user) {
 		List<Reservation> reservations = user.getAllReservations();
 		String receipt;
@@ -20,6 +29,6 @@ public class ComprehensiveReceipt implements Receipt {
 		receipt+= ("\n total cost: $" + cumCost +" ");
 		//System.out.println(receipt);
 		return receipt;
-	}
+}
 
 }

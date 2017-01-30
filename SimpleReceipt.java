@@ -1,10 +1,19 @@
 
 import java.util.List;
 
-//concrete strategy
+/**
+ * Simple Receipt class implements the Receipt interface
+ * 
+ */
+
 public class SimpleReceipt implements Receipt {
 
 	@Override
+	/** print method displays the receipt of the reservation in a simple format 
+	 * with room number and cost
+	 * @param reservations : list of Reservation
+	 * @param user	: Object of User containing the user info
+	 */
 	public String print(GuestUser user) {
 		List<Reservation> reservations = user.getTransaction();
 		String receipt;
@@ -20,6 +29,6 @@ public class SimpleReceipt implements Receipt {
 		receipt+= ("\n total cost: $" + cumCost + " ");
 		//System.out.println(receipt);
 		return receipt;
-	}
+}
 
 }
